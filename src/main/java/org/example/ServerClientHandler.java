@@ -17,10 +17,7 @@ public class ServerClientHandler extends Thread {
     public void run() {
         //while (true) {
             try {
-                System.out.println("Server Socket Start To Read");
-
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-                System.out.println("Server Socket Input Stream created");
                 CallInfo o = (CallInfo) objectInputStream.readObject();
 
                 System.out.println("Server Socket Object Readed");

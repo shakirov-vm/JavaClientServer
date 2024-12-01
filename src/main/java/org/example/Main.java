@@ -7,10 +7,8 @@ public class Main {
         ScoreService scoreService = createScoreClient();
 
         Person curr = new Person(10, "Petya");
-        System.out.println("Person created");
-//        System.out.println("scoreService: " + scoreService);
-        scoreService.score(curr);
-        // double result = ; //127.0.0.1:8000/score
+        double result = scoreService.score(curr);
+        System.out.println("Result on client is " + result);
     }
 
     private static void configureServer() throws InterruptedException {

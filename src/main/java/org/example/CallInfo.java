@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class CallInfo implements Serializable {
 
-    private final String method;
-    private final Object[] args;
+    public final String method;
+    public final Object[] args;
 
     public CallInfo(String method_, Object[] args_) {
         method = method_;

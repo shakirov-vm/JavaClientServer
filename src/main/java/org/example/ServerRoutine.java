@@ -4,16 +4,19 @@ import javax.net.ServerSocketFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerRoutine extends Thread {
 
     private ServerSocket serverSocket;
+    Object service;
 
-    public ServerRoutine(int port) throws IOException {
+    public ServerRoutine(int port, Object service_) throws IOException {
         serverSocket = new ServerSocket(port);
-        System.out.println("Server Socket Getted");
+        service = service_;
     }
 
     @Override
@@ -21,25 +24,25 @@ public class ServerRoutine extends Thread {
         //while (true) {
             try {
                 final Socket socketToClient = serverSocket.accept();
-                System.out.println("Server Socket Accepted");
                 try {
-                    System.out.println("Server Socket Start To Read");
-
                     ObjectInputStream objectInputStream = new ObjectInputStream(socketToClient.getInputStream());
-                    System.out.println("Server Socket Input Stream created");
                     CallInfo o = (CallInfo) objectInputStream.readObject();
 
-                    System.out.println("Server Socket Object Readed");
-                    System.out.println("Method name: " + o.getMethod());
-                    System.out.println("Read object: " + o);
+                    try {
+                        Method method = service.getClass().getMethod(o.method, Person.class);
+                        Object retVal = method.invoke(service, o.args);
 
+                        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socketToClient.getOutputStream());
+                        objectOutputStream.writeObject(retVal);
 
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(socketToClient.getOutputStream());
-                    System.out.println("Server Stream Created");
+                    } catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
 
-                    // java.io.NotSerializableException: java.lang.reflect.Method
-                    objectOutputStream.writeObject((double) 1.0f);
-                    System.out.println("Server Socket Object Writed");
                 } catch (IOException e) {
                     e.printStackTrace();
 
