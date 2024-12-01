@@ -4,9 +4,7 @@ import java.io.IOException;
 
 public class ServerFactoryImpl implements ServerFactory {
 
-    public ServerFactoryImpl() {
-
-    }
+    public ServerFactoryImpl() {}
 
     public void listen(int port, Object service) {
         try {

@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Handler;
 
 public class ClientFactoryImpl implements ClientFactory {
@@ -23,23 +25,26 @@ public class ClientFactoryImpl implements ClientFactory {
             original = original_;
             clientSocket = clientSocket_;
         }
-        public Object invoke(Object proxy, Method method, Object[] args)
-                throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        public Object invoke(Object proxy, Method method, Object[] args) throws IllegalArgumentException {
 
-            CallInfo toServer = new CallInfo(method.getName(), args);
+            Class<?>[] parameters = method.getParameterTypes();
+            List<String> stringParameters = new ArrayList<String>();
+            for (Class<?> cls : parameters) {
+                stringParameters.add(cls.getName());
+            }
+            CallInfo toServer = new CallInfo(method.getName(), stringParameters, args);
+
+            method.getParameterTypes();
 
             try {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                 objectOutputStream.writeObject(toServer);
 
-                System.out.println("Client Socket Start To Read");
-
                 ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
                 Object o = objectInputStream.readObject();
+//                objectOutputStream.close();
 
                 return o;
-
-                //                objectOutputStream.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (ClassNotFoundException e) {

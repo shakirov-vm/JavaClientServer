@@ -6,9 +6,11 @@ public class Main {
         configureServer();
         ScoreService scoreService = createScoreClient();
 
-        Person curr = new Person(10, "Petya");
+        Person curr = new Person(10, "Petya1");
         double result = scoreService.score(curr);
-        System.out.println("Result on client is " + result);
+        System.out.println("Result on client is for Petya1: " + result);
+        result = scoreService.score(new Person(20, "Petya2"));
+        System.out.println("Result on client is for Petya1:  " + result);
     }
 
     private static void configureServer() throws InterruptedException {

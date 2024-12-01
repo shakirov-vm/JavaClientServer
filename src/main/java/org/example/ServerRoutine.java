@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 public class ServerRoutine extends Thread {
 
@@ -21,38 +22,47 @@ public class ServerRoutine extends Thread {
 
     @Override
     public void run() {
-        //while (true) {
+        Socket socketToClient = null;
+        try {
+            socketToClient = serverSocket.accept();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        while (true) {
             try {
-                final Socket socketToClient = serverSocket.accept();
-                try {
-                    ObjectInputStream objectInputStream = new ObjectInputStream(socketToClient.getInputStream());
-                    CallInfo o = (CallInfo) objectInputStream.readObject();
+                ObjectInputStream objectInputStream = new ObjectInputStream(socketToClient.getInputStream());
+                CallInfo o = (CallInfo) objectInputStream.readObject();
 
-                    try {
-                        Method method = service.getClass().getMethod(o.method, Person.class);
-                        Object retVal = method.invoke(service, o.args);
+                Method method = service.getClass().getMethod(o.method, getParametersType(o));
+                Object retVal = method.invoke(service, o.args);
 
-                        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socketToClient.getOutputStream());
-                        objectOutputStream.writeObject(retVal);
-
-                    } catch (NoSuchMethodException e) {
-                        throw new RuntimeException(e);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socketToClient.getOutputStream());
+                objectOutputStream.writeObject(retVal);
 
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
-        //}
+        }
+    }
+    private Class<?>[] getParametersType(CallInfo info) {
+        try {
+            List<String> stringParameters = info.parameterNames;
+            Class<?>[] classParameters = new Class<?>[stringParameters.size()];
+            for (int i = 0; i < stringParameters.size(); i++) {
+                classParameters[i] = Class.forName(stringParameters.get(i));
+            }
+            return classParameters;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
