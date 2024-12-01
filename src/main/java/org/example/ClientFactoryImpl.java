@@ -7,11 +7,9 @@ import java.lang.reflect.*;
 import java.net.Socket;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 
 public class ClientFactoryImpl implements ClientFactory {
 
